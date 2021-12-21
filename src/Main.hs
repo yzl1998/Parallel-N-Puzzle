@@ -27,7 +27,8 @@ main = do
         inputs = map (\x -> (words <$> (drop 1 . clearInput . lines $ x))) input
         grids = map transformInput1 inputs
         (as, bs) = splitAt (length grids `div` 2) grids
-        solution =  runEval (parMap (\x -> solve' (getSolvedGrid $ length x) x (parseArgs args)) grids)
+        solution =  map (\x -> solve' (getSolvedGrid $ length x) x (parseArgs args)) grids
+        {- runEval (parMap (\x -> solve' (getSolvedGrid $ length x) x (parseArgs args)) grids) -}
         {-           runEval $ do
                             as' <- rpar (force (map (\x -> solve' (getSolvedGrid $ length x) x (parseArgs args)) as))
                             bs' <- rpar (force (map (\x -> solve' (getSolvedGrid $ length x) x (parseArgs args)) bs))
