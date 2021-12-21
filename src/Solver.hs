@@ -48,12 +48,12 @@ module Solver (SearchType(..), readSearchType, solve, solve') where
 
     -- Runs the search using a given SearchType. The SearchType will be used in nodes cost computation
     -- goal : stage to reach ; xss : path from begining to current node ; os : open set ; cs : close set ; nn : nextNodes function ; n : time complexity ; m : space complexity ; l : xss length
-    runSearch' :: Grid -> [Grid] -> PQ.MinPQueue Int [Grid] -> S.Set Grid -> NextNodesFunc -> Int -> Int -> Int -> ((Int, Int), [Grid])
+    runSearch' :: Grid -> [Grid] -> PQ.MinPQueue Int [Grid] -> S.Set Grid -> NextNodesFunc -> Int -> Int -> Int -> Int
     runSearch' goal xss os cs nn n m l
-        | head xss == goal                          =  ((n,m), (reverse xss))
+        | head xss == goal                          = n
         | suc /= PQ.empty                           = runSearch'  goal  ((minim suc):xss)  (PQ.union os $ PQ.deleteMin suc)  cs'  nn  (n+1)  size (l+1)
         | suc == PQ.empty && os /= PQ.empty         = runSearch'  goal  (tail xss)         os                                cs'  nn  (n+1)  size (l-1)
-        | otherwise = ((0,0), []) where
+        | otherwise = 0 where
             suc     = PQ.filter (\x -> S.notMember (head x) cs) $ nn l xss
             cs'     = S.insert (head xss) cs
             minim x = head . snd $ PQ.findMin x
@@ -71,7 +71,7 @@ module Solver (SearchType(..), readSearchType, solve, solve') where
     solve goal xs (Nothing, Just d)  = putStrLn ( "Solving grid using the " ++ show defaultSearch ++ " algorithm and the " ++ show d                ++ " distance" )  >>  runSearch goal [xs]  PQ.empty  S.empty  ( getNextNodes goal d                defaultSearch )  0 0 1
     solve goal xs (Just st, Just d)  = putStrLn ( "Solving grid using the " ++ show st            ++ " algorithm and the " ++ show d                ++ " distance" )  >>  runSearch goal [xs]  PQ.empty  S.empty  ( getNextNodes goal d                st            )  0 0 1
 
-    solve' :: Grid -> Grid -> (Maybe SearchType, Maybe Distance) -> ((Int, Int), [Grid])
+    solve' :: Grid -> Grid -> (Maybe SearchType, Maybe Distance) -> Int
     solve' goal xs (Nothing, Nothing) = runSearch' goal [xs]  PQ.empty  S.empty  ( getNextNodes goal defaultHeuristic defaultSearch )  0 0 1
     solve' goal xs (Just st, Nothing) = runSearch' goal [xs]  PQ.empty  S.empty  ( getNextNodes goal defaultHeuristic st            )  0 0 1
     solve' goal xs (Nothing, Just d)  = runSearch' goal [xs]  PQ.empty  S.empty  ( getNextNodes goal d                defaultSearch )  0 0 1
